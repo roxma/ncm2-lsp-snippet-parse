@@ -26,6 +26,9 @@ def apply_lsp_additional_text_edits(user_data, lspitem):
             resolved = json.loads(vim.eval(expr))
             if resolved:
                 additional_text_edits = resolved.get('additionalTextEdits', None)
+        elif user_data.get('nvim', None):
+            # TODO
+            None
         else:
             # for vim8 compatibility
             vim.vars['_ncm2_lsp_snippet_tmp'] = json.dumps(lspitem)
@@ -141,6 +144,8 @@ def match_formalize_from_lspitem(ctx, item, lspitem):
     if 'lspitem' in ud:
         ud['ncm2_lspitem'] = ud['lspitem']
         del ud['lspitem']
+    if 'nvim' in ud:
+        ud['ncm2_lspitem'] = lspitem
 
 
 def match_formalize(ctx, item):
@@ -150,6 +155,8 @@ def match_formalize(ctx, item):
 
     if 'lspitem' in ud:
         match_formalize_from_lspitem(ctx, item, ud['lspitem'])
+    if 'nvim' in ud and 'lsp' in ud['nvim'] and 'completion_item' in ud['nvim']['lsp']:
+        match_formalize_from_lspitem(ctx, item, ud['nvim']['lsp']['completion_item'])
 
     ud.setdefault('snippet', '')
     is_snippet = ud.setdefault('is_snippet', 0)
